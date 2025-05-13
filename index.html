@@ -16,6 +16,7 @@
         <ol>
           <li>Upload the Google Onboarding Sheet (Excel format)</li>
           <li>Upload the Employee ID Mapping Sheet (Excel format)</li>
+          <li>Upload the Branch Details Sheet (Excel format)</li>
           <li>The system will automatically convert it to the SAAR app employee format</li>
           <li>Download the converted file when ready</li>
         </ol>
@@ -40,6 +41,15 @@
           Choose ID Mapping File
         </button>
         <p id="employeeIdFileName" class="file-info">No file selected</p>
+      </div>
+
+      <div class="upload-section">
+        <p>3. Upload Branch Details Sheet:</p>
+        <input type="file" id="branchDetailsFileInput" class="fileInput" accept=".xlsx, .xls" />
+        <button class="upload-btn" onclick="document.getElementById('branchDetailsFileInput').click()">
+          Choose Branch Details File
+        </button>
+        <p id="branchDetailsFileName" class="file-info">No file selected</p>
       </div>
 
       <div id="statusMessage" class="status"></div>
