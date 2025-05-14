@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Credential Email System</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Employee Credential Email System</h1>
+        <p class="subtitle">
+          Upload employee data and send branch-specific credential emails
+        </p>
+      </header>
+
+      <div class="upload-section">
+        <h2>Step 1: Upload Branch Information</h2>
+        <div class="file-upload-container">
+          <div class="file-upload">
+            <input
+              type="file"
+              id="branchInfoFile"
+              accept=".xlsx, .xls, .csv"
+              class="file-input"
+            />
+            <label for="branchInfoFile" class="file-label">
+              <span class="file-icon">📁</span>
+              <span class="file-text">Choose Branch Info File</span>
+            </label>
+          </div>
+          <span id="branchFileName" class="file-name">No file selected</span>
+        </div>
+
+        <h2>Step 2: Upload Employee Data</h2>
+        <div class="file-upload-container">
+          <div class="file-upload">
+            <input
+              type="file"
+              id="employeeDataFile"
+              accept=".xlsx, .xls, .csv"
+              class="file-input"
+            />
+            <label for="employeeDataFile" class="file-label">
+              <span class="file-icon">📁</span>
+              <span class="file-text">Choose Employee Data File</span>
+            </label>
+          </div>
+          <span id="employeeFileName" class="file-name">No file selected</span>
+          <button id="uploadBtn" class="upload-btn" disabled>
+            Process Data
+          </button>
+        </div>
+      </div>
+
+      <div id="loadingIndicator" class="loading-indicator hidden">
+        <div class="spinner"></div>
+        <p>Processing data...</p>
+      </div>
+
+      <div id="dataContainer" class="data-container hidden">
+        <h2>Employees Grouped by Branch</h2>
+        <div id="branchData"></div>
+      </div>
+
+      <div id="emailPreview" class="email-preview hidden">
+        <h2>Email Preview</h2>
+        <div class="email-card">
+          <div class="email-header">
+            <div class="email-field">
+              <label>To:</label>
+              <span id="emailTo" class="email-value"></span>
+              <button class="copy-btn" data-target="emailTo">Copy</button>
+            </div>
+            <div class="email-field">
+              <label>CC:</label>
+              <span id="emailCC" class="email-value"></span>
+              <button class="copy-btn" data-target="emailCC">Copy</button>
+            </div>
+            <div class="email-field">
+              <label>Subject:</label>
+              <span id="emailSubject" class="email-value"></span>
+              <button class="copy-btn" data-target="emailSubject">Copy</button>
+            </div>
+          </div>
+          <div class="email-body-container">
+            <div id="emailBody"></div>
+            <button id="copyBodyBtn" class="copy-btn body-copy-btn">
+              Copy Email Body
+            </button>
+          </div>
+          <div class="email-actions">
+            <button id="backToListBtn" class="secondary-btn">
+              Back to List
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="notification" class="notification hidden">
+        <span id="notificationMessage"></span>
+        <button id="closeNotification" class="close-btn">&times;</button>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2025 BurgerFarm HR System | Developed for Internal Use</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

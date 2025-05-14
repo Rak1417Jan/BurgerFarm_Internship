@@ -1,68 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Employee Onboarding Data Converter</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <div class="container">
-      <h1>Employee Onboarding Data Converter</h1>
-
-      <div class="instructions">
-        <h3>Instructions:</h3>
-        <ol>
-          <li>Upload the Google Onboarding Sheet (Excel format)</li>
-          <li>Upload the Employee ID Mapping Sheet (Excel format)</li>
-          <li>Upload the Branch Details Sheet (Excel format)</li>
-          <li>The system will automatically convert it to the SAAR app employee format</li>
-          <li>Download the converted file when ready</li>
-        </ol>
-        <p>
-          <strong>Note:</strong> Employee IDs will be automatically generated based on branch.
-        </p>
-      </div>
-
-      <div class="upload-section">
-        <p>1. Upload Google Onboarding Sheet:</p>
-        <input type="file" id="onboardingFileInput" class="fileInput" accept=".xlsx, .xls" />
-        <button class="upload-btn" onclick="document.getElementById('onboardingFileInput').click()">
-          Choose Onboarding File
-        </button>
-        <p id="onboardingFileName" class="file-info">No file selected</p>
-      </div>
-
-      <div class="upload-section">
-        <p>2. Upload Employee ID Mapping Sheet:</p>
-        <input type="file" id="employeeIdFileInput" class="fileInput" accept=".xlsx, .xls" />
-        <button class="upload-btn" onclick="document.getElementById('employeeIdFileInput').click()">
-          Choose ID Mapping File
-        </button>
-        <p id="employeeIdFileName" class="file-info">No file selected</p>
-      </div>
-
-      <div class="upload-section">
-        <p>3. Upload Branch Details Sheet:</p>
-        <input type="file" id="branchDetailsFileInput" class="fileInput" accept=".xlsx, .xls" />
-        <button class="upload-btn" onclick="document.getElementById('branchDetailsFileInput').click()">
-          Choose Branch Details File
-        </button>
-        <p id="branchDetailsFileName" class="file-info">No file selected</p>
-      </div>
-
-      <div id="statusMessage" class="status"></div>
-
-      <div class="preview-section">
-        <h3>Preview of Converted Data:</h3>
-        <div id="tableContainer"></div>
-      </div>
-
-      <button id="downloadBtn" class="download-btn" disabled>
-        Download Converted File
-      </button>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burger Farm HR Tools</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
     </div>
-  </body>
-  <script src="script.js"></script>
+
+    <div class="toast" id="notification">
+        <span id="notification-message">Operation completed successfully!</span>
+    </div>
+
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon">🍔</span>
+            <span>Burger Farm HR</span>
+        </div>
+        <div class="user-menu">
+            <span>HR Admin</span>
+            <span>👤</span>
+        </div>
+    </nav>
+
+    <main>
+        <div class="welcome-section">
+            <h1>HR Tools Dashboard</h1>
+            <p class="subtitle">Optimize your HR workflows with our specialized tools</p>
+        </div>
+
+        <div class="tools-grid">
+            <div class="tool-card">
+                <div class="tool-icon">📊</div>
+                <div class="tool-content">
+                    <h2 class="tool-title">Google Data Converter</h2>
+                    <p class="tool-description">Convert Google Sheets data into compatible formats for HR systems. Streamline data transfer with quick conversions.</p>
+                    <a href="DB_HELPER_HR/DB Converter.html" class="tool-button">
+                        Open Tool
+                        <span>→</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">✉️</div>
+                <div class="tool-content">
+                    <h2 class="tool-title">Auto Email Send <span class="badge">New</span></h2>
+                    <p class="tool-description">Automate your HR communications with scheduled email delivery. Perfect for payroll notifications and team updates.</p>
+                    <a href="Auto Email/index.html" class="tool-button">
+                        Open Tool
+                        <span>→</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">📅</div>
+                <div class="tool-content">
+                    <h2 class="tool-title">Attendance Splitter</h2>
+                    <p class="tool-description">Process and organize attendance data with ease. Split and analyze attendance records by department, shift, or date range.</p>
+                    <a href="Attendance Splitter/index.html" class="tool-button">
+                        Open Tool
+                        <span>→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        © 2025 Burger Farm HR Solutions | Version 2.1.0
+    </footer>
+    <script src="scripts.js"></script>
+</body>
 </html>

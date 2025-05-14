@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Onboarding Data Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Employee Onboarding Data Converter</h1>
+
+      <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+          <li>Upload the Google Onboarding Sheet (Excel format)</li>
+          <li>Upload the Employee ID Mapping Sheet (Excel format)</li>
+          <li>Upload the Branch Details Sheet (Excel format)</li>
+          <li>The system will automatically convert it to the SAAR app employee format</li>
+          <li>Download the converted file when ready</li>
+        </ol>
+        <p>
+          <strong>Note:</strong> Employee IDs will be automatically generated based on branch.
+        </p>
+      </div>
+
+      <div class="upload-section">
+        <p>1. Upload Google Onboarding Sheet:</p>
+        <input type="file" id="onboardingFileInput" class="fileInput" accept=".xlsx, .xls" />
+        <button class="upload-btn" onclick="document.getElementById('onboardingFileInput').click()">
+          Choose Onboarding File
+        </button>
+        <p id="onboardingFileName" class="file-info">No file selected</p>
+      </div>
+
+      <div class="upload-section">
+        <p>2. Upload Employee ID Mapping Sheet:</p>
+        <input type="file" id="employeeIdFileInput" class="fileInput" accept=".xlsx, .xls" />
+        <button class="upload-btn" onclick="document.getElementById('employeeIdFileInput').click()">
+          Choose ID Mapping File
+        </button>
+        <p id="employeeIdFileName" class="file-info">No file selected</p>
+      </div>
+
+      <div class="upload-section">
+        <p>3. Upload Branch Details Sheet:</p>
+        <input type="file" id="branchDetailsFileInput" class="fileInput" accept=".xlsx, .xls" />
+        <button class="upload-btn" onclick="document.getElementById('branchDetailsFileInput').click()">
+          Choose Branch Details File
+        </button>
+        <p id="branchDetailsFileName" class="file-info">No file selected</p>
+      </div>
+
+      <div id="statusMessage" class="status"></div>
+
+      <div class="preview-section">
+        <h3>Preview of Converted Data:</h3>
+        <div id="tableContainer"></div>
+      </div>
+
+      <button id="downloadBtn" class="download-btn" disabled>
+        Download Converted File
+      </button>
+    </div>
+  </body>
+  <script src="script.js"></script>
+</html>

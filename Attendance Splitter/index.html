@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Excel Splitter</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Excel Branch Splitter</h1>
+      <p class="subtitle">Split your Excel file by branch and download separate files</p>
+    </div>
+  </header>
+  
+  <main>
+    <div class="upload-container">
+      <div class="upload-icon">📊</div>
+      <h2 class="upload-title">Upload Your Excel File</h2>
+      <p class="upload-description">Select an Excel file (.xlsx, .xls) containing a "Branch" column to split</p>
+      
+      <div id="alert-container"></div>
+      
+      <div class="file-input-container">
+        <input type="file" id="excel-file" class="file-input" accept=".xlsx, .xls">
+        <button class="btn btn-primary">Choose File</button>
+      </div>
+      <div id="file-name" class="file-name"></div>
+      
+      <div class="progress-container" id="progress-container">
+        <div class="progress">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="loader" id="loader">
+      <div class="loading-spinner"></div>
+      <p>Processing your file...</p>
+    </div>
+    
+    <div class="results-container" id="results-container">
+      <h3 class="results-title">Split Results by Branch</h3>
+      <div id="branches-list" class="branches-list"></div>
+      
+      <div class="download-all-container">
+        <a href="#" id="download-all-btn" class="download-all-btn">
+          <span>Download All Branches (.zip)</span>
+        </a>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <div class="container">
+      <p class="footer-text">Branch Splitter - Split Excel files based on branch column</p>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="scripts.js"></script>
+</body>
+</html>
