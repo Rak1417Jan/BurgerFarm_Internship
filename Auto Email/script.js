@@ -235,7 +235,7 @@ function processBranchInformation(data) {
   }
 
   // Expected column names (case insensitive)
-  const branchColumnNames = ["BRANCH"];
+  const branchColumnNames = ["Branch"];
   const managerColumnNames = ["Area Manager"];
   const mailColumnNames = ["Mail id"];
 
@@ -304,7 +304,7 @@ function processEmployeeData(jsonData) {
     empName: headers.findIndex(
       (h) => h === "Emp Name" || h === "Employee Name"
     ),
-    branch: headers.findIndex((h) => h === "BRANCH" || h === "Branch Name"),
+    branch: headers.findIndex((h) => h === "Branch" || h === "Branch Name"),
     department: headers.findIndex((h) => h === "Department"),
     userId: headers.findIndex((h) => h === "Userid" || h === "User Id"),
     userPassword: headers.findIndex((h) => h === "User Password"),
@@ -319,7 +319,7 @@ function processEmployeeData(jsonData) {
   const essentialColumns = [
     "empId",
     "empName",
-    "BRANCH",
+    "branch",
     "userId",
     "userPassword",
   ];
