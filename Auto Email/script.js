@@ -304,7 +304,7 @@ function processEmployeeData(jsonData) {
     empName: headers.findIndex(
       (h) => h === "Emp Name" || h === "Employee Name"
     ),
-    branch: headers.findIndex((h) => h === "Branch" || h === "Branch Name"),
+    branch: headers.findIndex((h) => h === "Branch" || h === "Branch Name" || h === "BRANCH"),
     department: headers.findIndex((h) => h === "Department"),
     userId: headers.findIndex((h) => h === "Userid" || h === "User Id"),
     userPassword: headers.findIndex((h) => h === "User Password"),
