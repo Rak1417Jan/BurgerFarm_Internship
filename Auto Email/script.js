@@ -286,12 +286,6 @@ function processBranchInformation(data) {
 /**
  * Processes the raw data from Excel/CSV for employee data
  */
-/**
- * Processes the raw data from Excel/CSV for employee data
- */
-/**
- * Processes the raw data from Excel/CSV for employee data
- */
 function processEmployeeData(jsonData) {
   if (!jsonData || jsonData.length < 2) {
     showNotification("Invalid or empty data.", "error");
@@ -299,39 +293,25 @@ function processEmployeeData(jsonData) {
   }
 
   // Extract headers (first row)
-  const headers = jsonData[0].map(h => h.toString().trim()); // Trim all headers
+  const headers = jsonData[0];
 
-  // Map column indices (case insensitive)
+  // Map column indices
   const columnIndices = {
-    srNo: headers.findIndex(h => 
-      h.match(/^(Sr_No|Sr No|S\.No)$/i)
+    srNo: headers.findIndex(
+      (h) => h === "Sr_No" || h === "Sr No" || h === "S.No"
     ),
-    empId: headers.findIndex(h => 
-      h.match(/^(Emp Id|Employee ID)$/i)
+    empId: headers.findIndex((h) => h === "Emp Id" || h === "Employee ID"),
+    empName: headers.findIndex(
+      (h) => h === "Emp Name" || h === "Employee Name"
     ),
-    empName: headers.findIndex(h => 
-      h.match(/^(Emp Name|Employee Name)$/i)
-    ),
-    branch: headers.findIndex(h => 
-      h.match(/^(BRANCH|Branch|Branch Name)$/i)
-    ),
-    department: headers.findIndex(h => 
-      h.match(/^Department$/i)
-    ),
-    userId: headers.findIndex(h => 
-      h.match(/^(Userid|User Id)$/i)
-    ),
-    userPassword: headers.findIndex(h => 
-      h.match(/^User Password$/i)
-    ),
-    active: headers.findIndex(h => 
-      h.match(/^Active$/i)
-    ),
-    mailId: headers.findIndex(h => 
-      h.match(/^(Mail id|Branch Email)$/i)
-    ),
-    areaManager: headers.findIndex(h => 
-      h.match(/^(Area Manager|Area Manager Email)$/i)
+    branch: headers.findIndex((h) => h === "Branch" || h === "Branch Name"),
+    department: headers.findIndex((h) => h === "Department"),
+    userId: headers.findIndex((h) => h === "Userid" || h === "User Id"),
+    userPassword: headers.findIndex((h) => h === "User Password"),
+    active: headers.findIndex((h) => h === "Active"),
+    mailId: headers.findIndex((h) => h === "Mail id" || h === "Branch Email"),
+    areaManager: headers.findIndex(
+      (h) => h === "Area Manager" || h === "Area Manager Email"
     ),
   };
 
@@ -348,149 +328,187 @@ function processEmployeeData(jsonData) {
   );
 
   if (missingColumns.length > 0) {
-    showNotification(`Missing required columns: ${missingColumns.join(", ")}`, "error");
+    showNotification(`Missing columns: ${missingColumns.join(", ")}`, "error");
     return;
   }
 
-  // Reset employee data
-  employeeData = [];
+  // Check if mail ID and area manager columns exist
+  const hasMailId = columnIndices.mailId !== -1;
+  const hasAreaManager = columnIndices.areaManager !== -1;
 
-  // Process each row
+  // Convert data rows (skipping header)
   for (let i = 1; i < jsonData.length; i++) {
     const row = jsonData[i];
-    if (!row || row.length === 0) continue;
+    if (row.length === 0 || !row[columnIndices.empId]) continue; // Skip empty rows
 
-    // Get branch name and trim it
-    const branch = row[columnIndices.branch] 
+    const branch = row[columnIndices.branch]
       ? row[columnIndices.branch].toString().trim()
       : "";
 
     const employee = {
       srNo: row[columnIndices.srNo] || i,
-      empId: row[columnIndices.empId] ? row[columnIndices.empId].toString().trim() : "",
-      empName: row[columnIndices.empName] ? row[columnIndices.empName].toString().trim() : "",
+      empId: row[columnIndices.empId] || "",
+      empName: row[columnIndices.empName] || "",
       branch: branch,
-      department: row[columnIndices.department] ? row[columnIndices.department].toString().trim() : "",
-      userId: row[columnIndices.userId] ? row[columnIndices.userId].toString().trim() : "",
-      userPassword: row[columnIndices.userPassword] ? row[columnIndices.userPassword].toString().trim() : "",
-      active: row[columnIndices.active] ? row[columnIndices.active].toString().trim() : "",
+      department: row[columnIndices.department] || "",
+      userId: row[columnIndices.userId] || "",
+      userPassword: row[columnIndices.userPassword] || "",
+      active: row[columnIndices.active] || "",
     };
 
-    // Only add if we have required fields
-    if (employee.empId && employee.empName && employee.userId && employee.userPassword) {
-      employeeData.push(employee);
+    employeeData.push(employee);
 
-      // Store branch info if available
-      if (branch) {
-        // Store mail ID if available
-        if (columnIndices.mailId !== -1 && row[columnIndices.mailId] && !branchMailIDs[branch]) {
-          branchMailIDs[branch] = row[columnIndices.mailId].toString().trim();
-        }
+    // Store branch-related info if not already stored
+    if (branch) {
+      if (hasMailId && !branchMailIDs[branch] && row[columnIndices.mailId]) {
+        branchMailIDs[branch] = row[columnIndices.mailId].toString().trim();
+      }
 
-        // Store area manager if available
-        if (columnIndices.areaManager !== -1 && row[columnIndices.areaManager] && !branchManagers[branch]) {
-          branchManagers[branch] = row[columnIndices.areaManager].toString().trim();
-        }
+      if (
+        hasAreaManager &&
+        !branchManagers[branch] &&
+        row[columnIndices.areaManager]
+      ) {
+        branchManagers[branch] = row[columnIndices.areaManager]
+          .toString()
+          .trim();
       }
     }
   }
 
-  // After processing all data, display it
+  // Group employees by branch and display
   displayEmployeesByBranch();
 }
 
 /**
- * Prepares email for a specific branch with dynamic month/year
+ * Groups and displays employees by branch
  */
-function prepareEmail(branchName, employees) {
-  if (!employees || employees.length === 0) {
-    showNotification("No employees found for this branch.", "error");
-    return;
-  }
+function displayEmployeesByBranch() {
+  // Group employees by branch
+  const branches = {};
 
-  // Hide data container and show email preview
-  dataContainer.classList.add("hidden");
-  emailPreview.classList.remove("hidden");
+  employeeData.forEach((employee) => {
+    if (!employee.branch) return;
 
-  // Get branch email and manager email
-  const branchEmail = branchMailIDs[branchName] || "";
-  const areaManagerEmail = branchManagers[branchName] || "";
+    if (!branches[employee.branch]) {
+      branches[employee.branch] = [];
+    }
 
-  // Set recipients
-  emailToElement.textContent = branchEmail;
-  
-  // Set CC list (including HR emails and area manager if available)
-  const ccList = [...CC_LIST];
-  if (areaManagerEmail) {
-    ccList.push(areaManagerEmail);
-  }
-  emailCCElement.textContent = ccList.join(", ");
-
-  // Get current month and year
-  const now = new Date();
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const currentMonth = monthNames[now.getMonth()];
-  const currentYear = now.getFullYear().toString().slice(-2);
-
-  // Create subject with dynamic month/year
-  const employeeNames = employees.map(e => e.empName).join(", ");
-  const subject = `ID Password New Joining ${branchName} Store ${currentMonth}-${currentYear} ll ${employeeNames}`;
-  emailSubjectElement.textContent = subject;
-
-  // Create HTML email body
-  let htmlBody = `Dear Team,<br><br>`;
-  htmlBody += `Please find below mentioned ID & Password. Kindly start mobile Punching from today onwards.<br><br>`;
-  
-  htmlBody += `<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">`;
-  htmlBody += `<thead><tr style="background-color: #f2f2f2;">`;
-  htmlBody += `<th>Sr No</th><th>Emp ID</th><th>Name</th>`;
-  htmlBody += `<th>Branch</th><th>User ID</th><th>Password</th>`;
-  htmlBody += `</tr></thead><tbody>`;
-  
-  employees.forEach((emp, index) => {
-    htmlBody += `<tr>`;
-    htmlBody += `<td>${index + 1}</td>`;
-    htmlBody += `<td>${emp.empId}</td>`;
-    htmlBody += `<td>${emp.empName}</td>`;
-    htmlBody += `<td>${emp.branch}</td>`;
-    htmlBody += `<td>${emp.userId}</td>`;
-    htmlBody += `<td>${emp.userPassword}</td>`;
-    htmlBody += `</tr>`;
+    branches[employee.branch].push(employee);
   });
-  
-  htmlBody += `</tbody></table><br><br>`;
-  htmlBody += `Thank you,<br>HR Team`;
 
-  // Create plain text version
-  let plainBody = `Dear Team,\n\n`;
-  plainBody += `Please find below mentioned ID & Password. Kindly start mobile Punching from today onwards.\n\n`;
-  
-  // Create table header
-  plainBody += `+------+----------+----------------------+------------------+----------+----------+\n`;
-  plainBody += `| SrNo | Emp ID   | Name                 | Branch           | User ID  | Password |\n`;
-  plainBody += `+------+----------+----------------------+------------------+----------+----------+\n`;
-  
-  // Add rows
-  employees.forEach((emp, index) => {
-    plainBody += `| ${(index + 1).toString().padEnd(4)} `;
-    plainBody += `| ${emp.empId.padEnd(8)} `;
-    plainBody += `| ${emp.empName.padEnd(20)} `;
-    plainBody += `| ${emp.branch.padEnd(16)} `;
-    plainBody += `| ${emp.userId.padEnd(8)} `;
-    plainBody += `| ${emp.userPassword.padEnd(8)} |\n`;
-  });
-  
-  plainBody += `+------+----------+----------------------+------------------+----------+----------+\n\n`;
-  plainBody += `Thank you,\nHR Team`;
+  // Clear the container
+  branchDataContainer.innerHTML = "";
 
-  // Set the email content
-  emailBodyElement.innerHTML = htmlBody;
-  emailBodyElement.dataset.plainText = plainBody;
+  // Display employees by branch
+  Object.keys(branches)
+    .sort()
+    .forEach((branchName) => {
+      const employees = branches[branchName];
 
-  // Store branch data for sending
-  emailPreview.dataset.branchName = branchName;
-  emailPreview.dataset.employees = JSON.stringify(employees);
+      // Create branch section
+      const branchSection = document.createElement("div");
+      branchSection.className = "branch-section";
+
+      // Create branch header
+      const branchHeader = document.createElement("div");
+      branchHeader.className = "branch-header";
+
+      const branchNameDiv = document.createElement("div");
+      branchNameDiv.className = "branch-info";
+
+      const branchNameSpan = document.createElement("span");
+      branchNameSpan.className = "branch-name";
+      branchNameSpan.textContent = branchName;
+
+      const employeeCountSpan = document.createElement("span");
+      employeeCountSpan.className = "employee-count";
+      employeeCountSpan.textContent = `${employees.length} employees`;
+
+      branchNameDiv.appendChild(branchNameSpan);
+      branchNameDiv.appendChild(document.createTextNode(" "));
+      branchNameDiv.appendChild(employeeCountSpan);
+
+      // Add mail ID and area manager info if available
+      if (branchMailIDs[branchName] || branchManagers[branchName]) {
+        const branchContactInfo = document.createElement("div");
+        branchContactInfo.className = "manager-info";
+
+        if (branchMailIDs[branchName]) {
+          branchContactInfo.innerHTML += `<strong>Mail ID:</strong> ${branchMailIDs[branchName]}`;
+        }
+
+        if (branchMailIDs[branchName] && branchManagers[branchName]) {
+          branchContactInfo.innerHTML += " | ";
+        }
+
+        if (branchManagers[branchName]) {
+          branchContactInfo.innerHTML += `<strong>Area Manager:</strong> ${branchManagers[branchName]}`;
+        }
+
+        branchNameDiv.appendChild(branchContactInfo);
+      }
+
+      const emailButton = document.createElement("button");
+      emailButton.className = "email-btn";
+      emailButton.innerHTML =
+        '<span class="email-icon">✉️</span> Prepare Email';
+      emailButton.addEventListener("click", () =>
+        prepareEmail(branchName, employees)
+      );
+
+      branchHeader.appendChild(branchNameDiv);
+      branchHeader.appendChild(emailButton);
+
+      // Create table
+      const table = document.createElement("table");
+
+      // Table header
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+
+      ["Sr No", "Emp ID", "Name", "User ID", "Password", "Department"].forEach(
+        (headerText) => {
+          const th = document.createElement("th");
+          th.textContent = headerText;
+          headerRow.appendChild(th);
+        }
+      );
+
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      // Table body
+      const tbody = document.createElement("tbody");
+
+      employees.forEach((employee) => {
+        const row = document.createElement("tr");
+
+        [
+          employee.srNo,
+          employee.empId,
+          employee.empName,
+          employee.userId,
+          employee.userPassword,
+          employee.department,
+        ].forEach((cellText) => {
+          const td = document.createElement("td");
+          td.textContent = cellText;
+          row.appendChild(td);
+        });
+
+        tbody.appendChild(row);
+      });
+
+      table.appendChild(tbody);
+
+      // Append to section
+      branchSection.appendChild(branchHeader);
+      branchSection.appendChild(table);
+
+      // Append to container
+      branchDataContainer.appendChild(branchSection);
+    });
 }
 
 /**
