@@ -35,7 +35,6 @@ const notificationMessage = document.getElementById("notificationMessage");
 const closeNotification = document.getElementById("closeNotification");
 
 // Event listeners
-// Event listeners
 document.addEventListener("DOMContentLoaded", function () {
   branchInfoInput.addEventListener("change", handleBranchFileSelect);
   employeeDataInput.addEventListener("change", handleEmployeeFileSelect);
@@ -235,7 +234,7 @@ function processBranchInformation(data) {
   }
 
   // Expected column names (case insensitive)
-  const branchColumnNames = ["Branch"];
+  const branchColumnNames = ["Branch", "BRANCH"];
   const managerColumnNames = ["Area Manager"];
   const mailColumnNames = ["Mail id"];
 
@@ -245,9 +244,9 @@ function processBranchInformation(data) {
     // Find the correct column names (case insensitive)
     const rowKeys = Array.isArray(row) ? [] : Object.keys(row);
 
-    const branchKey = rowKeys.find((key) => branchColumnNames.includes(key));
-    const managerKey = rowKeys.find((key) => managerColumnNames.includes(key));
-    const mailKey = rowKeys.find((key) => mailColumnNames.includes(key));
+    const branchKey = rowKeys.find((key) => branchColumnNames.some(name => name.toLowerCase() === key.toLowerCase()));
+    const managerKey = rowKeys.find((key) => managerColumnNames.some(name => name.toLowerCase() === key.toLowerCase()));
+    const mailKey = rowKeys.find((key) => mailColumnNames.some(name => name.toLowerCase() === key.toLowerCase()));
 
     if (!Array.isArray(row)) {
       branch = branchKey ? row[branchKey] : null;
@@ -281,8 +280,6 @@ function processBranchInformation(data) {
   }
 }
 
-// ... [rest of the existing functions remain the same, including processEmployeeData, displayEmployeesByBranch, prepareEmail, etc.] ...
-
 /**
  * Processes the raw data from Excel/CSV for employee data
  */
@@ -297,22 +294,16 @@ function processEmployeeData(jsonData) {
 
   // Map column indices
   const columnIndices = {
-    srNo: headers.findIndex(
-      (h) => h === "Sr_No" || h === "Sr No" || h === "S.No"
-    ),
-    empId: headers.findIndex((h) => h === "Emp Id" || h === "Employee ID"),
-    empName: headers.findIndex(
-      (h) => h === "Emp Name" || h === "Employee Name"
-    ),
-    branch: headers.findIndex((h) => h === "Branch" || h === "Branch Name"),
-    department: headers.findIndex((h) => h === "Department"),
-    userId: headers.findIndex((h) => h === "Userid" || h === "User Id"),
-    userPassword: headers.findIndex((h) => h === "User Password"),
-    active: headers.findIndex((h) => h === "Active"),
-    mailId: headers.findIndex((h) => h === "Mail id" || h === "Branch Email"),
-    areaManager: headers.findIndex(
-      (h) => h === "Area Manager" || h === "Area Manager Email"
-    ),
+    srNo: findColumnIndex(headers, ["Sr_No", "Sr No", "S.No"]),
+    empId: findColumnIndex(headers, ["Emp Id", "Employee ID"]),
+    empName: findColumnIndex(headers, ["Emp Name", "Employee Name"]),
+    branch: findColumnIndex(headers, ["Branch", "Branch Name", "BRANCH"]),
+    department: findColumnIndex(headers, ["Department"]),
+    userId: findColumnIndex(headers, ["Userid", "User Id"]),
+    userPassword: findColumnIndex(headers, ["User Password"]),
+    active: findColumnIndex(headers, ["Active"]),
+    mailId: findColumnIndex(headers, ["Mail id", "Branch Email"]),
+    areaManager: findColumnIndex(headers, ["Area Manager", "Area Manager Email"]),
   };
 
   // Check if essential columns are found
@@ -378,6 +369,19 @@ function processEmployeeData(jsonData) {
 
   // Group employees by branch and display
   displayEmployeesByBranch();
+}
+
+/**
+ * Helper function to find column index with case-insensitive matching
+ */
+function findColumnIndex(headers, possibleNames) {
+  for (const name of possibleNames) {
+    const index = headers.findIndex(h => 
+      typeof h === 'string' && h.toLowerCase() === name.toLowerCase()
+    );
+    if (index !== -1) return index;
+  }
+  return -1;
 }
 
 /**
@@ -514,15 +518,6 @@ function displayEmployeesByBranch() {
 /**
  * Prepares email for a specific branch
  */
-/**
- * Prepares email for a specific branch
- */
-/**
- * Prepares email for a specific branch
- */
-/**
- * Prepares email for a specific branch
- */
 function prepareEmail(branchName, employees) {
   if (!employees || employees.length === 0) {
     showNotification("No employees found for this branch.", "error");
@@ -552,7 +547,7 @@ function prepareEmail(branchName, employees) {
 
   // Get current month abbreviation and year
   const currentDate = new Date();
-  const monthAbbr = currentDate.toLocaleString('default', { month: 'short' });
+  const monthAbbr = currentDate.toLocaleString('default', { month: 'short' }).toUpperCase();
   const currentYear = currentDate.getFullYear().toString().slice(-2); // Last 2 digits of year
 
   // Set email subject with dynamic month and year
