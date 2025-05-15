@@ -286,6 +286,9 @@ function processBranchInformation(data) {
 /**
  * Processes the raw data from Excel/CSV for employee data
  */
+/**
+ * Processes the raw data from Excel/CSV for employee data
+ */
 function processEmployeeData(jsonData) {
   if (!jsonData || jsonData.length < 2) {
     showNotification("Invalid or empty data.", "error");
@@ -304,7 +307,7 @@ function processEmployeeData(jsonData) {
     empName: headers.findIndex(
       (h) => h === "Emp Name" || h === "Employee Name"
     ),
-    branch: headers.findIndex((h) => h === "Branch" || h === "Branch Name"),
+    branch: headers.findIndex((h) => h === "BRANCH" || h === "Branch" || h === "Branch Name"),
     department: headers.findIndex((h) => h === "Department"),
     userId: headers.findIndex((h) => h === "Userid" || h === "User Id"),
     userPassword: headers.findIndex((h) => h === "User Password"),
@@ -375,9 +378,6 @@ function processEmployeeData(jsonData) {
       }
     }
   }
-
-  // Group employees by branch and display
-  displayEmployeesByBranch();
 }
 
 /**
@@ -520,6 +520,9 @@ function displayEmployeesByBranch() {
 /**
  * Prepares email for a specific branch
  */
+/**
+ * Prepares email for a specific branch
+ */
 function prepareEmail(branchName, employees) {
   if (!employees || employees.length === 0) {
     showNotification("No employees found for this branch.", "error");
@@ -547,8 +550,13 @@ function prepareEmail(branchName, employees) {
   // Create employee name list for subject
   const employeeNames = employees.map((emp) => emp.empName).join(", ");
 
-  // Set email subject
-  const subject = `ID Password New Joining ${branchName} Store Apr-25 ll ${employeeNames}`;
+  // Get current month abbreviation and year
+  const currentDate = new Date();
+  const monthAbbr = currentDate.toLocaleString('default', { month: 'short' });
+  const currentYear = currentDate.getFullYear().toString().slice(-2); // Last 2 digits of year
+
+  // Set email subject with dynamic month and year
+  const subject = `ID Password New Joining ${branchName} Store ${monthAbbr}-${currentYear} ll ${employeeNames}`;
   emailSubjectElement.textContent = subject;
 
   // Format email body - HTML version
