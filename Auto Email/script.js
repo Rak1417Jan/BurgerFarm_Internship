@@ -546,13 +546,9 @@ function prepareEmail(branchName, employees) {
   const employeeNames = employees.map((emp) => emp.empName).join(", ");
 
   // Get current month abbreviation and year
-  // const currentDate = new Date();
-  // const monthAbbr = currentDate.toLocaleString('default', { month: 'short' }).toUpperCase();
-  // const currentYear = currentDate.getFullYear().toString().slice(-2); // Last 2 digits of year
-  const currentDate = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-  const date = new Date(currentDate);
-  const monthAbbr = date.toLocaleString('default', { month: 'short', timeZone: 'Asia/Kolkata' }).toUpperCase();
-  const currentYear = date.getFullYear().toString().slice(-2);
+  const currentDate = new Date();
+  const monthAbbr = currentDate.toLocaleString('default', { month: 'short' }).toUpperCase();
+  const currentYear = currentDate.getFullYear().toString().slice(-2); // Last 2 digits of year
 
   // Set email subject with dynamic month and year
   const subject = `ID Password New Joining ${branchName} Store ${monthAbbr}-${currentYear} ll ${employeeNames}`;
