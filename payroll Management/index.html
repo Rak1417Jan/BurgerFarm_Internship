@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Attendance Processor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Employee Attendance Processor</h1>
+
+      <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+          <li>Upload the "All Store Attendance" Excel file</li>
+          <li>Upload the "Live Employees" Excel file</li>
+          <li>Upload the "Additional Data" Excel file (for last column)</li>
+          <li>Click "Process Files" to generate the modified file</li>
+          <li>Download the processed file(s)</li>
+        </ol>
+        <p>
+          The processed file will contain Designation, DOJ, and Division columns
+          from the Live Employees file, the "Total Overtime" column from each branch's sheet in the Additional Data file,
+          and will remove unnecessary columns from the Attendance file.
+        </p>
+      </div>
+
+      <div class="upload-section">
+        <div class="file-upload">
+          <label for="attendanceFile">Upload All Store Attendance File:</label>
+          <input type="file" id="attendanceFile" accept=".xlsx, .xls" />
+          <div id="attendanceFileInfo" class="file-info">No file selected</div>
+        </div>
+
+        <div class="file-upload">
+          <label for="employeesFile">Upload Live Employees File:</label>
+          <input type="file" id="employeesFile" accept=".xlsx, .xls" />
+          <div id="employeesFileInfo" class="file-info">No file selected</div>
+        </div>
+
+        <div class="file-upload">
+          <label for="additionalFile">Upload Additional Data File:</label>
+          <input type="file" id="additionalFile" accept=".xlsx, .xls" />
+          <div id="additionalFileInfo" class="file-info">No file selected</div>
+        </div>
+
+        <div class="progress-container" id="progressContainer">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="button-group">
+          <button id="processBtn" disabled>Process Files</button>
+          <button id="downloadAllBtn" disabled>Download All as ZIP</button>
+        </div>
+
+        <div id="statusMessage" class="status"></div>
+        
+        <div id="divisionDownloads" class="division-downloads" style="display: none;">
+          <h3>Download by Division:</h3>
+          <div id="divisionButtons"></div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
