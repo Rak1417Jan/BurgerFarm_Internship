@@ -874,6 +874,8 @@ function parseExcel(data) {
 }
 
 // Main processing function
+// Main processing function
+// Main processing function
 function processAttendanceData(attendance, employees, additionalMap) {
   // Create a lookup map from employee ID to employee data
   const employeeMap = createEmployeeMap(employees);
@@ -909,7 +911,13 @@ function processAttendanceData(attendance, employees, additionalMap) {
     throw new Error("Could not find 'Days Payable' column in attendance file");
   }
 
-  // Create new header row
+  // Find the Total column (last column)
+  const totalIndex = headerRow.length - 1;
+  if (totalIndex < 0) {
+    throw new Error("Could not find 'Total' column in attendance file");
+  }
+
+  // Create new header row with additional columns
   const newHeaderRow = [
     ...headerRow.slice(0, deptIndex + 1), // Keep up to Department
     "Designation",
@@ -917,7 +925,8 @@ function processAttendanceData(attendance, employees, additionalMap) {
     "Division",
     ...headerRow.slice(-2), // Add last two columns
     "Total Overtime", // Add the column from additional file
-    "Pending Offs OT" // Add the new column
+    "Pending Offs OT", // Add the new column
+    "Discrepancy" // Add the discrepancy column
   ];
 
   processedRows.push(newHeaderRow);
@@ -963,20 +972,43 @@ function processAttendanceData(attendance, employees, additionalMap) {
       daysPayable = parseFloat(daysPayableStr) || 0;
     }
 
+    // Extract the number from Total (format: "Present:10.5")
+    let totalStr = row[totalIndex] ? row[totalIndex].toString().trim() : "";
+    let total = 0;
+    
+    if (totalStr.includes(":")) {
+      const parts = totalStr.split(":");
+      if (parts.length > 1) {
+        total = parseFloat(parts[1]) || 0;
+      }
+    } else {
+      total = parseFloat(totalStr) || 0;
+    }
+
     // Calculate Pending Offs OT based on Days Payable
     let pendingOffsOT = 0;
+    let expectedTotal = 0;
     
     if (daysPayable <= 6) {
       pendingOffsOT = 0;
+      expectedTotal = 0 + daysPayable;
     } else if (daysPayable <= 13) {
       pendingOffsOT = 9;
+      expectedTotal = 1 + daysPayable;
     } else if (daysPayable <= 20) {
       pendingOffsOT = 18;
+      expectedTotal = 2 + daysPayable;
     } else if (daysPayable <= 23) {
       pendingOffsOT = 27;
+      expectedTotal = 3 + daysPayable;
     } else {
       pendingOffsOT = 36;
+      expectedTotal = 4 + daysPayable;
     }
+
+    // Determine if there's a discrepancy
+    const isTotalValid = Math.abs(total - expectedTotal) < 0.01; // Account for floating point precision
+    const discrepancyStatus = isTotalValid ? "Correct" : "Wrong";
 
     // Create new row with selected columns
     const newRow = [
@@ -986,7 +1018,8 @@ function processAttendanceData(attendance, employees, additionalMap) {
       employeeInfo.Division || "", // Add Division
       ...row.slice(-2), // Add last two columns
       overtimeValue, // Add Total Overtime data
-      pendingOffsOT // Add Pending Offs OT
+      pendingOffsOT, // Add Pending Offs OT
+      discrepancyStatus // Add Discrepancy status
     ];
 
     processedRows.push(newRow);
