@@ -1662,7 +1662,7 @@ function showDivisionDownloads() {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.id = `checkbox-${division}`;
-    checkbox.checked = true;
+    checkbox.checked = false;
     checkbox.value = division;
     
     const label = document.createElement('label');
@@ -1681,7 +1681,7 @@ function showDivisionDownloads() {
   const mainCheckbox = document.createElement('input');
   mainCheckbox.type = 'checkbox';
   mainCheckbox.id = 'checkbox-main';
-  mainCheckbox.checked = true;
+  mainCheckbox.checked = false;
   mainCheckbox.value = 'main';
   
   const mainLabel = document.createElement('label');
