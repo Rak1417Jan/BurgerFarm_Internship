@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Employee Attendance Processor</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="container">
@@ -22,8 +22,9 @@
         </ol>
         <p>
           The processed file will contain Designation, DOJ, and Division columns
-          from the Live Employees file, the "Total Overtime" column from each branch's sheet in the Additional Data file,
-          and will remove unnecessary columns from the Attendance file.
+          from the Live Employees file, the "Total Overtime" column from each
+          branch's sheet in the Additional Data file, and will remove
+          unnecessary columns from the Attendance file.
         </p>
       </div>
 
@@ -46,6 +47,24 @@
           <div id="additionalFileInfo" class="file-info">No file selected</div>
         </div>
 
+        <div class="file-upload">
+          <label for="monthSelect">Select Month:</label>
+          <select id="monthSelect">
+            <option value="31">January (31 days)</option>
+            <option value="28">February (28 days)</option>
+            <option value="31">March (31 days)</option>
+            <option value="30">April (30 days)</option>
+            <option value="31">May (31 days)</option>
+            <option value="30">June (30 days)</option>
+            <option value="31">July (31 days)</option>
+            <option value="31">August (31 days)</option>
+            <option value="30">September (30 days)</option>
+            <option value="31">October (31 days)</option>
+            <option value="30">November (30 days)</option>
+            <option value="31">December (31 days)</option>
+          </select>
+        </div>
+
         <div class="progress-container" id="progressContainer">
           <div class="progress-bar" id="progressBar"></div>
         </div>
@@ -56,10 +75,22 @@
         </div>
 
         <div id="statusMessage" class="status"></div>
-        
-        <div id="divisionDownloads" class="division-downloads" style="display: none;">
+
+        <div
+          id="divisionDownloads"
+          class="division-downloads"
+          style="display: none"
+        >
           <h3>Download by Division:</h3>
           <div id="divisionButtons"></div>
+        </div>
+        <!-- Add this after the divisionDownloads div in index.html -->
+        <div id="fileSelection" class="file-selection" style="display: none">
+          <h3>Select Files to Download:</h3>
+          <div id="fileCheckboxes"></div>
+          <button id="downloadSelectedBtn" class="download-selected-btn">
+            Download Selected Files
+          </button>
         </div>
       </div>
     </div>
