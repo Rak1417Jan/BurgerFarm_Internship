@@ -670,7 +670,7 @@
               employee["Employee ID"] ||
               employee["EmpId"] ||
               "Unknown";
-            pdf.save(`Increment_Letter_${empId}.pdf`);
+            pdf.save(`${firstName}_${empId}.pdf`);
 
             document.body.removeChild(tempDiv);
             statusDiv.innerHTML =
