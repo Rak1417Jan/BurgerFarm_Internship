@@ -10,7 +10,7 @@ const CC_LIST = [
   "hr.burgerfarm@gmail.com",
   "hrburgerfarm@gmail.com",
   "hr@burgerfarm.in",
-  "mahimahr.burgerfarm@gmail.com",
+  "hrd.burgerfarm@gmail.com",
   "hrassociate.burgerfarm@gmail.com",
 ];
 
