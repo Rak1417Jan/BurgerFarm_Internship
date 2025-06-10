@@ -673,6 +673,8 @@
               employee["Employee ID"] ||
               employee["EmpId"] ||
               "Unknown";
+
+            const firstName = employee["First Name"];
             pdf.save(`${firstName}_${empId}.pdf`);
 
             document.body.removeChild(tempDiv);
