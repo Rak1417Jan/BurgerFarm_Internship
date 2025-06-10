@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Increment Letter Generator - Burger Farm</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+        color: #333;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .upload-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+      .upload-box {
+        flex: 1;
+        min-width: 300px;
+        padding: 20px;
+        border: 2px dashed #ff6b35;
+        border-radius: 5px;
+        text-align: center;
+        background-color: #fff5f2;
+      }
+      .upload-box h3 {
+        margin-top: 0;
+        color: #ff6b35;
+      }
+      .file-input {
+        margin: 15px 0;
+      }
+      button {
+        background-color: #ff6b35;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #e55a2b;
+      }
+      button:disabled {
+        background-color: #95a5a6;
+        cursor: not-allowed;
+      }
+      .preview {
+        margin-top: 30px;
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 5px;
+        background-color: white;
+        max-height: 600px;
+        overflow-y: auto;
+      }
+      .preview h3 {
+        margin-top: 0;
+        color: #2c3e50;
+      }
+      .employee-select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+      .status {
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 10px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Letter Template Styles */
+      .letter-template {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        position: relative;
+        min-height: 1000px;
+        z-index: 1; /* Add this line */
+      }
+
+      .letter-header {
+        width: 100%;
+        height: auto;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        z-index: 2; /* Between background (0) and content (3) */
+      }
+
+      .header-image {
+        width: 100%;
+        height: auto;
+        display: block;
+        max-height: 250px;
+        object-fit: cover;
+      }
+
+      .letter-content {
+        padding: 40px;
+        background: white;
+        position: relative;
+        min-height: 600px;
+        z-index: 2; /* Same as header/footer */
+      }
+
+      .background-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0; /* Lower than the template's z-index */
+        overflow: hidden;
+      }
+
+      .background-image {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.1;
+        pointer-events: none;
+      }
+
+      .content-text {
+        position: relative;
+        z-index: 4;
+      }
+
+      .letter-footer {
+        width: 100%;
+        height: auto;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        z-index: 2; /* Between background (0) and content (3) */
+      }
+
+      .footer-image {
+        width: 100%;
+        height: auto;
+        display: block;
+        max-height: 80px;
+        object-fit: cover;
+      }
+
+      /* Image upload section for template images */
+      .image-upload-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid #dee2e6;
+      }
+
+      .image-upload-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 15px;
+      }
+
+      .image-upload-box {
+        padding: 15px;
+        border: 2px dashed #6c757d;
+        border-radius: 5px;
+        text-align: center;
+        background: white;
+      }
+
+      .image-upload-box h4 {
+        margin: 0 0 10px 0;
+        color: #495057;
+        font-size: 14px;
+      }
+
+      .image-preview {
+        max-width: 100%;
+        max-height: 100px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🍔 Increment Letter Generator - Burger Farm</h1>
+
+      <div class="upload-section">
+        <div class="upload-box">
+          <h3>Upload Excel Sheet</h3>
+          <p>Please upload the increment data sheet (Excel format)</p>
+          <input
+            type="file"
+            id="excelFile"
+            class="file-input"
+            accept=".xlsx, .xls"
+          />
+          <div id="excelStatus"></div>
+        </div>
+
+        <div class="upload-box">
+          <h3>Upload Word Template</h3>
+          <p>Please upload the increment letter template (Word format)</p>
+          <input type="file" id="wordFile" class="file-input" accept=".docx" />
+          <div id="wordStatus"></div>
+        </div>
+      </div>
+
+      <div class="image-upload-section">
+        <h3 style="margin-top: 0; color: #495057">📎 Upload Template Images</h3>
+        <p style="margin-bottom: 15px; color: #6c757d">
+          Upload the header, footer, and background images for your letter
+          template
+        </p>
+
+        <div class="image-upload-grid">
+          <div class="image-upload-box">
+            <h4>Header Image</h4>
+            <input
+              type="file"
+              id="headerImage"
+              accept="image/*"
+              style="font-size: 12px"
+            />
+            <div id="headerPreview"></div>
+          </div>
+
+          <div class="image-upload-box">
+            <h4>Background Image</h4>
+            <input
+              type="file"
+              id="backgroundImage"
+              accept="image/*"
+              style="font-size: 12px"
+            />
+            <div id="backgroundPreview"></div>
+          </div>
+
+          <div class="image-upload-box">
+            <h4>Footer Image</h4>
+            <input
+              type="file"
+              id="footerImage"
+              accept="image/*"
+              style="font-size: 12px"
+            />
+            <div id="footerPreview"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="controls" style="display: none">
+        <h3>Select Employee</h3>
+        <select id="employeeSelect" class="employee-select">
+          <option value="">-- Select an employee --</option>
+        </select>
+
+        <button id="generateBtn">Generate Letter</button>
+        <button id="downloadAllBtn">Download All as PDF</button>
+        <div id="status" class="status"></div>
+      </div>
+
+      <div class="preview">
+        <h3>Letter Preview</h3>
+        <div id="letterPreview"></div>
+      </div>
+    </div>
+
+    <script>
+      // Global variables to store the data
+      let employees = [];
+      let wordTemplateContent = "";
+      let headerImageSrc = "";
+      let backgroundImageSrc = "";
+      let footerImageSrc = "";
+      const { jsPDF } = window.jspdf;
+
+      // DOM elements
+      const excelFileInput = document.getElementById("excelFile");
+      const wordFileInput = document.getElementById("wordFile");
+      const headerImageInput = document.getElementById("headerImage");
+      const backgroundImageInput = document.getElementById("backgroundImage");
+      const footerImageInput = document.getElementById("footerImage");
+      const employeeSelect = document.getElementById("employeeSelect");
+      const generateBtn = document.getElementById("generateBtn");
+      const downloadAllBtn = document.getElementById("downloadAllBtn");
+      const letterPreview = document.getElementById("letterPreview");
+      const statusDiv = document.getElementById("status");
+      const excelStatusDiv = document.getElementById("excelStatus");
+      const wordStatusDiv = document.getElementById("wordStatus");
+      const controlsDiv = document.getElementById("controls");
+
+      // Event listeners
+      excelFileInput.addEventListener("change", handleExcelUpload);
+      wordFileInput.addEventListener("change", handleWordUpload);
+      headerImageInput.addEventListener("change", (e) =>
+        handleImageUpload(e, "header")
+      );
+      backgroundImageInput.addEventListener("change", (e) =>
+        handleImageUpload(e, "background")
+      );
+      footerImageInput.addEventListener("change", (e) =>
+        handleImageUpload(e, "footer")
+      );
+      generateBtn.addEventListener("click", generateLetter);
+      downloadAllBtn.addEventListener("click", downloadAllLetters);
+
+      // Handle image uploads
+      function handleImageUpload(event, imageType) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const imageSrc = e.target.result;
+
+          // Store the image source
+          switch (imageType) {
+            case "header":
+              headerImageSrc = imageSrc;
+              document.getElementById(
+                "headerPreview"
+              ).innerHTML = `<img src="${imageSrc}" class="image-preview" alt="Header Preview">`;
+              break;
+            case "background":
+              backgroundImageSrc = imageSrc;
+              document.getElementById(
+                "backgroundPreview"
+              ).innerHTML = `<img src="${imageSrc}" class="image-preview" alt="Background Preview">`;
+              break;
+            case "footer":
+              footerImageSrc = imageSrc;
+              document.getElementById(
+                "footerPreview"
+              ).innerHTML = `<img src="${imageSrc}" class="image-preview" alt="Footer Preview">`;
+              break;
+          }
+
+          // Update preview if we already have an employee selected
+          if (employeeSelect.value !== "") {
+            const employee = employees[employeeSelect.value];
+            const letterContent = createLetterContent(employee);
+            letterPreview.innerHTML = letterContent;
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Handle Excel file upload
+      function handleExcelUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        excelStatusDiv.innerHTML =
+          '<span class="loading"></span> Processing Excel file...';
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+
+            // Assuming the data is in the first sheet
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+
+            // Convert to JSON
+            employees = XLSX.utils.sheet_to_json(worksheet);
+
+            // Populate the employee dropdown
+            populateEmployeeDropdown();
+
+            excelStatusDiv.innerHTML = `<span class="success">✔ Successfully loaded ${employees.length} employees</span>`;
+
+            // Show controls if both files are loaded
+            if (wordTemplateContent) {
+              controlsDiv.style.display = "block";
+            }
+          } catch (error) {
+            excelStatusDiv.innerHTML = `<span class="error">✖ Error processing Excel file: ${error.message}</span>`;
+            console.error(error);
+          }
+        };
+        reader.onerror = function () {
+          excelStatusDiv.innerHTML =
+            '<span class="error">✖ Error reading Excel file</span>';
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      // Handle Word file upload
+      function handleWordUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        wordStatusDiv.innerHTML =
+          '<span class="loading"></span> Processing Word template...';
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const arrayBuffer = e.target.result;
+            wordTemplateContent = "Word template loaded";
+
+            wordStatusDiv.innerHTML =
+              '<span class="success">✔ Successfully loaded Word template</span>';
+
+            // Show controls if both files are loaded
+            if (employees.length > 0) {
+              controlsDiv.style.display = "block";
+            }
+          } catch (error) {
+            wordStatusDiv.innerHTML = `<span class="error">✖ Error processing Word file: ${error.message}</span>`;
+            console.error(error);
+          }
+        };
+        reader.onerror = function () {
+          wordStatusDiv.innerHTML =
+            '<span class="error">✖ Error reading Word file</span>';
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      // Populate the employee dropdown
+      function populateEmployeeDropdown() {
+        employeeSelect.innerHTML =
+          '<option value="">-- Select an employee --</option>';
+
+        employees.forEach((employee, index) => {
+          const option = document.createElement("option");
+          option.value = index;
+          // Handle different possible column names
+          const empId =
+            employee["Employee Id"] ||
+            employee["Employee ID"] ||
+            employee["EmpId"] ||
+            "";
+          const firstName =
+            employee["First Name"] ||
+            employee["Name"] ||
+            employee["Employee Name"] ||
+            "";
+          const designation =
+            employee["Designation"] || employee["Position"] || "";
+
+          option.textContent = `${empId} - ${firstName} (${designation})`;
+          employeeSelect.appendChild(option);
+        });
+      }
+
+      // Generate a single letter
+      function generateLetter() {
+        const selectedIndex = employeeSelect.value;
+        if (selectedIndex === "") {
+          statusDiv.innerHTML =
+            '<span class="error">Please select an employee</span>';
+          return;
+        }
+
+        const employee = employees[selectedIndex];
+        statusDiv.innerHTML =
+          '<span class="loading"></span> Generating letter...';
+
+        setTimeout(() => {
+          const letterContent = createLetterContent(employee);
+          letterPreview.innerHTML = letterContent;
+          statusDiv.innerHTML =
+            '<span class="success">Letter generated successfully</span>';
+
+          // Enable download
+          generateBtn.textContent = "Download PDF";
+          generateBtn.removeEventListener("click", generateLetter);
+          generateBtn.addEventListener("click", () =>
+            downloadPDF(employee, letterContent)
+          );
+        }, 1000);
+      }
+
+      // Create letter content with actual images
+      function createLetterContent(employee) {
+        // Handle different possible column names
+        const empId =
+          employee["Employee Id"] ||
+          employee["Employee ID"] ||
+          employee["EmpId"] ||
+          "";
+        const firstName =
+          employee["First Name"] ||
+          employee["Name"] ||
+          employee["Employee Name"] ||
+          "";
+        const designation =
+          employee["Designation"] || employee["Position"] || "";
+        const newCTC = employee["New CTC"] || employee["CTC"] || "";
+        const newSalary = employee["New Salary"] || employee["Salary"] || "";
+        const newDesignation = employee["New Designation"] || designation || "";
+
+        return `
+        <div class="letter-template" style="position: relative;">
+            <!-- Background container that spans the entire document -->
+            <div class="background-container">
+                ${
+                  backgroundImageSrc
+                    ? `<img src="${backgroundImageSrc}" alt="Background" class="background-image">`
+                    : ""
+                }
+            </div>
+            
+            ${
+              headerImageSrc
+                ? `
+            <div class="letter-header" style="position: relative; z-index: 2;">
+                <img src="${headerImageSrc}" alt="Company Header" class="header-image">
+            </div>
+            `
+                : `
+            <div class="letter-header" style="position: relative; z-index: 2; background: #f8f8f8; height: 100px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #ddd;">
+                <div style="text-align: center;">
+                    <h2 style="margin: 0; font-size: 24px; color: #333;">BURGER FARM INDIA PVT. LTD.</h2>
+                    <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Please upload header image above</p>
+                </div>
+            </div>
+            `
+            }
+            
+            <div class="letter-content" style="position: relative; z-index: -1;">
+                <div class="content-text">
+                    <p style="text-align: right; margin-bottom: 30px; font-weight: bold;">01<sup>st</sup> April, 2025</p>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <p style="margin: 5px 0;"><strong>To,</strong></p>
+                        <p style="margin: 5px 0;">${firstName}</p>
+                        <p style="margin: 5px 0;">${empId}</p>
+                    </div>
+                    
+                    <h3 style="color: #333; margin: 30px 0 20px 0; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+                        <strong>Subject: Increment Letter</strong>
+                    </h3>
+                    
+                    <p style="margin-bottom: 20px;"><strong>Dear ${firstName},</strong></p>
+                    
+                    <p style="margin-bottom: 20px; text-align: justify;">
+                        We are pleased to inform you that after evaluating your performance, 
+                        your position and salary have been revised with effect from 01/04/2025. 
+                        The new structure is as follows:
+                    </p>
+                    
+                    <ul style="margin: 25px 0; padding-left: 20px;">
+                        <li style="margin-bottom: 8px;"><strong>Designation:</strong> ${newDesignation}</li>
+                        <li style="margin-bottom: 8px;"><strong>CTC:</strong> ${newCTC}</li>
+                        <li style="margin-bottom: 8px;"><strong>Monthly Gross Salary:</strong> ${newSalary}</li>
+                    </ul>
+                    
+                    <p style="margin-bottom: 20px; text-align: justify;">
+                        For the detailed salary breakup and other terms and conditions, please 
+                        contact the HR department.
+                    </p>
+                    
+                    <p style="margin-bottom: 20px; text-align: justify;">
+                        We appreciate your valuable contributions and look forward to your 
+                        continued success with the organization. Wishing you a rewarding career ahead.
+                    </p>
+                    
+                    <p style="margin-bottom: 40px; text-align: justify;">
+                        Please sign the duplicate copy of this letter as a token of your acceptance.
+                    </p>
+                    
+                    <div style="margin-top: 60px;">
+                        <p style="margin: 5px 0;"><strong>Warm regards,</strong></p>
+                        <p style="margin: 5px 0;"><strong>Authorized Signatory</strong></p>
+                        <p style="margin: 5px 0;"><strong>Burger Farm India Pvt. Ltd.</strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            ${
+              footerImageSrc
+                ? `
+            <div class="letter-footer" style="position: relative; z-index: 2;">
+                <img src="${footerImageSrc}" alt="Company Footer" class="footer-image">
+            </div>
+            `
+                : ""
+            }
+        </div>
+    `;
+      }
+
+      // Download a single PDF
+      function downloadPDF(employee, content) {
+        statusDiv.innerHTML = '<span class="loading"></span> Generating PDF...';
+
+        // Create a temporary div to render the content for PDF generation
+        const tempDiv = document.createElement("div");
+        tempDiv.style.position = "absolute";
+        tempDiv.style.left = "-9999px";
+        tempDiv.innerHTML = content;
+        document.body.appendChild(tempDiv);
+
+        // Use html2canvas to capture the content
+        html2canvas(tempDiv, {
+          scale: 2,
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
+        })
+          .then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jsPDF("p", "mm", "a4");
+            const imgWidth = 210; // A4 width in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+
+            const empId =
+              employee["Employee Id"] ||
+              employee["Employee ID"] ||
+              employee["EmpId"] ||
+              "Unknown";
+            pdf.save(`Increment_Letter_${empId}.pdf`);
+
+            document.body.removeChild(tempDiv);
+            statusDiv.innerHTML =
+              '<span class="success">PDF downloaded successfully</span>';
+          })
+          .catch((error) => {
+            console.error("Error generating PDF:", error);
+            statusDiv.innerHTML =
+              '<span class="error">Error generating PDF</span>';
+            document.body.removeChild(tempDiv);
+          });
+      }
+
+      // Download all letters as PDF
+      function downloadAllLetters() {
+        if (employees.length === 0) {
+          statusDiv.innerHTML =
+            '<span class="error">No employees to process</span>';
+          return;
+        }
+
+        statusDiv.innerHTML =
+          '<span class="loading"></span> Generating all letters... This may take a while.';
+        downloadAllBtn.disabled = true;
+
+        const pdf = new jsPDF("p", "mm", "a4");
+        let processed = 0;
+
+        function processNextEmployee(index) {
+          if (index >= employees.length) {
+            pdf.save("All_Increment_Letters_BurgerFarm.pdf");
+            statusDiv.innerHTML =
+              '<span class="success">All letters generated and downloaded</span>';
+            downloadAllBtn.disabled = false;
+            return;
+          }
+
+          const employee = employees[index];
+          const content = createLetterContent(employee);
+
+          // Create a temporary div for this employee's letter
+          const tempDiv = document.createElement("div");
+          tempDiv.style.position = "absolute";
+          tempDiv.style.left = "-9999px";
+          tempDiv.innerHTML = content;
+          document.body.appendChild(tempDiv);
+
+          html2canvas(tempDiv, {
+            scale: 2,
+            logging: false,
+            useCORS: true,
+            allowTaint: true,
+          })
+            .then((canvas) => {
+              const imgData = canvas.toDataURL("image/png");
+
+              if (index > 0) {
+                pdf.addPage();
+              }
+
+              const imgWidth = 210; // A4 width in mm
+              const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+              pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+
+              processed++;
+              statusDiv.innerHTML = `<span class="loading"></span> Processing (${processed}/${employees.length})...`;
+              document.body.removeChild(tempDiv);
+
+              // Process next employee after a short delay to prevent UI freeze
+              setTimeout(() => processNextEmployee(index + 1), 500);
+            })
+            .catch((error) => {
+              console.error(
+                "Error generating PDF for employee:",
+                employee,
+                error
+              );
+              document.body.removeChild(tempDiv);
+              processNextEmployee(index + 1);
+            });
+        }
+
+        processNextEmployee(0);
+      }
+    </script>
+  </body>
+</html>
