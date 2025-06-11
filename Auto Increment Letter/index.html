@@ -126,7 +126,7 @@
         background: white;
         position: relative;
         min-height: 1000px;
-        z-index: 1; /* Add this line */
+        z-index: 1;
       }
 
       .letter-header {
@@ -135,7 +135,7 @@
         margin: 0;
         padding: 0;
         position: relative;
-        z-index: 2; /* Between background (0) and content (3) */
+        z-index: 2;
       }
 
       .header-image {
@@ -151,7 +151,7 @@
         background: white;
         position: relative;
         min-height: 600px;
-        z-index: 2; /* Same as header/footer */
+        z-index: 2;
       }
 
       .background-container {
@@ -160,7 +160,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: 0; /* Lower than the template's z-index */
+        z-index: 0;
         overflow: hidden;
       }
 
@@ -184,7 +184,7 @@
         margin: 0;
         padding: 0;
         position: relative;
-        z-index: 2; /* Between background (0) and content (3) */
+        z-index: 2;
       }
 
       .footer-image {
@@ -482,21 +482,7 @@
         employees.forEach((employee, index) => {
           const option = document.createElement("option");
           option.value = index;
-          // Handle different possible column names
-          const empId =
-            employee["Employee Id"] ||
-            employee["Employee ID"] ||
-            employee["EmpId"] ||
-            "";
-          const firstName =
-            employee["First Name"] ||
-            employee["Name"] ||
-            employee["Employee Name"] ||
-            "";
-          const designation =
-            employee["Designation"] || employee["Position"] || "";
-
-          option.textContent = `${empId} - ${firstName} (${designation})`;
+          option.textContent = `${employee["Employee Id"]} - ${employee["Employee Name"]} (${employee["Department"]})`;
           employeeSelect.appendChild(option);
         });
       }
@@ -531,116 +517,205 @@
 
       // Create letter content with actual images
       function createLetterContent(employee) {
-        // Handle different possible column names
-        const empId =
-          employee["Employee Id"] ||
-          employee["Employee ID"] ||
-          employee["EmpId"] ||
-          "";
-        const firstName =
-          employee["First Name"] ||
-          employee["Name"] ||
-          employee["Employee Name"] ||
-          "";
-        const designation =
-          employee["Designation"] || employee["Position"] || "";
-        const newCTC = employee["New CTC"] || employee["CTC"] || "";
-        const newSalary = employee["New Salary"] || employee["Salary"] || "";
-        const newDesignation = employee["New Designation"] || designation || "";
+  // Format the percentage as a percentage (e.g., 0.1 becomes 10%)
+  const percentage = (employee["Percentage"] * 100).toFixed(0) + "%";
 
-        return `
-        <div class="letter-template" style="position: relative;">
-            <!-- Background container that spans the entire document -->
-            <div class="background-container">
-                ${
-                  backgroundImageSrc
-                    ? `<img src="${backgroundImageSrc}" alt="Background" class="background-image">`
-                    : ""
-                }
-            </div>
-            
-            ${
-              headerImageSrc
-                ? `
-            <div class="letter-header" style="position: relative; z-index: 2;">
-                <img src="${headerImageSrc}" alt="Company Header" class="header-image">
-            </div>
-            `
-                : `
-            <div class="letter-header" style="position: relative; z-index: 2; background: #f8f8f8; height: 80px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #ddd;">
-                <div style="text-align: center;">
-                    <h2 style="margin: 0; font-size: 24px; color: #333;">BURGER FARM INDIA PVT. LTD.</h2>
-                    <p style="margin: 0px 0 0 0; font-size: 14px; color: #666;">Please upload header image above</p>
-                </div>
-            </div>
-            `
-            }
-            
-            <div class="letter-content" style="position: relative; z-index: -1;">
-                <div class="content-text">
-                    <p style="text-align: left; margin-bottom: 10px; font-weight: bold;">01<sup>st</sup> April, 2025</p>
-                    
-                    <div style="margin-bottom: 30px;">
-                        <p style="margin: 5px 0;"><strong>To,</strong></p>
-                        <p style="margin: 5px 0;">${firstName}</p>
-                        <p style="margin: 5px 0;">${empId}</p>
-                    </div>
-                    
-                    <h3 style="color: #333; margin: 30px 0 20px 0; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">
-                        <strong>Subject: Increment Letter</strong>
-                    </h3>
-                    
-                    <p style="margin-bottom: 10px;"><strong>Dear ${firstName},</strong></p>
-                    
-                    <p style="margin-bottom: 10px; text-align: justify;">
-                        We are pleased to inform you that after evaluating your performance, 
-                        your position and salary have been revised with effect from 01/04/2025. 
-                        The new structure is as follows:
-                    </p>
-                    
-                    <ul style="margin: 25px 0; padding-left: 20px;">
-                        <li style="margin-bottom: 8px;"><strong>Designation:</strong> ${newDesignation}</li>
-                        <li style="margin-bottom: 8px;"><strong>CTC:</strong> ${newCTC}</li>
-                        <li style="margin-bottom: 8px;"><strong>Monthly Gross Salary:</strong> ${newSalary}</li>
-                    </ul>
-                    
-                    <p style="margin-bottom: 10px; text-align: justify;">
-                        For the detailed salary breakup and other terms and conditions, please 
-                        contact the HR department.
-                    </p>
-                    
-                    <p style="margin-bottom: 10px; text-align: justify;">
-                        We appreciate your valuable contributions and look forward to your 
-                        continued success with the organization. Wishing you a rewarding career ahead.
-                    </p>
-                    
-                    <p style="margin-bottom: 20px; text-align: justify;">
-                        Please sign the duplicate copy of this letter as a token of your acceptance.
-                    </p>
-                    
-                    <div style="margin-top: 10px;">
-                        <p style="margin: 5px 0;"><strong>Warm regards,</strong></p>
-                        <div style="margin: 10px 0;">
-                        <img src="assets/signature.png" alt="Signature" style="height: 45px;">
-                        </div>
-                        <p style="margin: 5px 0;"><strong>Authorized Signatory</strong></p>
-                        <p style="margin: 5px 0;"><strong>Burger Farm India Pvt. Ltd.</strong></p>
-                    </div>
-                </div>
-            </div>
-            
-            ${
-              footerImageSrc
-                ? `
-            <div class="letter-footer" style="position: relative; z-index: 2;">
-                <img src="${footerImageSrc}" alt="Company Footer" class="footer-image">
-            </div>
-            `
-                : ""
-            }
+  // Format the yearly CTC with commas
+  const yearlyCTC = new Intl.NumberFormat('en-IN').format(employee["Yearly CTC"]);
+
+  return `
+    <div class="letter-template" style="position: relative;">
+      <!-- Background container -->
+      <div class="background-container">
+        ${
+          backgroundImageSrc
+            ? `<img src="${backgroundImageSrc}" alt="Background" class="background-image">`
+            : ""
+        }
+      </div>
+
+      ${
+        headerImageSrc
+          ? `
+        <div class="letter-header" style="position: relative; z-index: 2;">
+          <img src="${headerImageSrc}" alt="Company Header" class="header-image">
         </div>
-    `;
+        `
+          : `
+        <div class="letter-header" style="position: relative; z-index: 2; background: #f8f8f8; height: 80px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #ddd;">
+          <div style="text-align: center;">
+            <h2 style="margin: 0; font-size: 24px; color: #333;">BURGER FARM INDIA PVT. LTD.</h2>
+            <p style="margin: 0px 0 0 0; font-size: 14px; color: #666;">Please upload header image above</p>
+          </div>
+        </div>
+        `
       }
+
+      <!-- Title -->
+      <div style="text-align: center; margin: 30px 0;">
+        <h2 style="font-size: 22px; text-decoration: underline; letter-spacing: 1px;">INCREMENT LETTER</h2>
+      </div>
+
+      <div class="letter-content" style="position: relative; z-index: -1;">
+        <div class="content-text">
+
+          <p style="margin-bottom: 10px; text-align: justify;">
+            <strong>Dear ${employee["Employee Name"]},</strong>
+          </p>
+
+          <p style="margin-bottom: 10px; text-align: justify;">
+            We are pleased to inform you that, in recognition of your outstanding
+            performance and contributions to Burger Farm India Pvt. Ltd., you will
+            be receiving an increment in your annual CTC.
+          </p>
+
+          <p style="margin-bottom: 10px; text-align: justify;">
+            As per our company's policy, your annual CTC will be increased by
+            ${percentage} effective April 1, 2025, resulting in an increased annual
+            CTC of Rs. ${yearlyCTC}.
+          </p>
+
+          <p style="margin-bottom: 10px; text-align: justify;">
+            This increment is a testament to your hard work and dedication to the
+            organization. We appreciate your commitment to excellence and look
+            forward to continued growth and success.
+          </p>
+
+          <p style="margin-bottom: 20px;"><strong>Details of the increment are as follows:</strong></p>
+
+          <ul style="margin: 25px 0; padding-left: 20px;">
+            <li style="margin-bottom: 8px;"><strong>Effective Date:</strong> April 1, 2025</li>
+            <li style="margin-bottom: 8px;"><strong>Increment Amount:</strong> ${percentage} of current CTC</li>
+            <li style="margin-bottom: 8px;"><strong>Increased Annual CTC:</strong> Rs. ${yearlyCTC}</li>
+          </ul>
+
+          <p style="margin-bottom: 10px; text-align: justify;">
+            We congratulate you on this well-deserved recognition and look forward
+            to your continued contributions to the company.
+          </p>
+
+          <!-- Signature -->
+          <div style="margin-top: 40px; text-align: left;">
+            <img src="assets/signature.png" alt="Signature" style="width: 180px; margin-bottom: 10px;">
+            <p style="margin: 5px 0;"><strong>Warm regards,</strong></p>
+            <p style="margin: 5px 0;"><strong>Authorized Signatory</strong></p>
+            <p style="margin: 5px 0;"><strong>Burger Farm India Pvt. Ltd.</strong></p>
+          </div>
+
+        </div>
+      </div>
+
+      ${
+        footerImageSrc
+          ? `
+        <div class="letter-footer" style="position: relative; z-index: 2;">
+          <img src="${footerImageSrc}" alt="Company Footer" class="footer-image">
+        </div>
+        `
+          : ""
+      }
+    </div>
+  `;
+}
+
+    //   function createLetterContent(employee) {
+    //     // Format the percentage as a percentage (e.g., 0.1 becomes 10%)
+    //     const percentage = (employee["Percentage"] * 100).toFixed(0) + "%";
+        
+    //     // Format the yearly CTC with commas
+    //     const yearlyCTC = new Intl.NumberFormat('en-IN').format(employee["Yearly CTC"]);
+
+    //     return `
+    //     <div class="letter-template" style="position: relative;">
+    //         <!-- Background container that spans the entire document -->
+    //         <div class="background-container">
+    //             ${
+    //               backgroundImageSrc
+    //                 ? `<img src="${backgroundImageSrc}" alt="Background" class="background-image">`
+    //                 : ""
+    //             }
+    //         </div>
+            
+    //         ${
+    //           headerImageSrc
+    //             ? `
+    //         <div class="letter-header" style="position: relative; z-index: 2;">
+    //             <img src="${headerImageSrc}" alt="Company Header" class="header-image">
+    //         </div>
+    //         `
+    //             : `
+    //         <div class="letter-header" style="position: relative; z-index: 2; background: #f8f8f8; height: 80px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #ddd;">
+    //             <div style="text-align: center;">
+    //                 <h2 style="margin: 0; font-size: 24px; color: #333;">BURGER FARM INDIA PVT. LTD.</h2>
+    //                 <p style="margin: 0px 0 0 0; font-size: 14px; color: #666;">Please upload header image above</p>
+    //             </div>
+    //         </div>
+    //         `
+    //         }
+            
+    //         <div class="letter-content" style="position: relative; z-index: -1;">
+    //             <div class="content-text">
+    //                 <p style="text-align: right; margin-bottom: 30px;">Date: ${new Date().toLocaleDateString('en-GB')}</p>
+                    
+    //                 <div style="margin-bottom: 20px;">
+    //                     <p style="margin: 5px 0;"><strong>${employee["Employee Name"]}</strong></p>
+    //                     <p style="margin: 5px 0;">Employee ID: ${employee["Employee Id"]}</p>
+    //                     <p style="margin: 5px 0;">Department: ${employee["Department"]}</p>
+    //                 </div>
+                    
+    //                 <p style="margin-bottom: 10px;"><strong>Dear ${employee["Employee Name"]},</strong></p>
+                    
+    //                 <p style="margin-bottom: 10px; text-align: justify;">
+    //                     We are pleased to inform you that, in recognition of your outstanding
+    //                     performance and contributions to Burger Farm India Pvt. Ltd., you will
+    //                     be receiving an increment in your annual CTC.
+    //                 </p>
+                    
+    //                 <p style="margin-bottom: 10px; text-align: justify;">
+    //                     As per our company's policy, your annual CTC will be increased by
+    //                     ${percentage} effective April 1, 2025, resulting in an increased annual
+    //                     CTC of Rs. ${yearlyCTC}.
+    //                 </p>
+                    
+    //                 <p style="margin-bottom: 10px; text-align: justify;">
+    //                     This increment is a testament to your hard work and dedication to the
+    //                     organization. We appreciate your commitment to excellence and look
+    //                     forward to continued growth and success.
+    //                 </p>
+                    
+    //                 <p style="margin-bottom: 20px;"><strong>Details of the increment are as follows:</strong></p>
+                    
+    //                 <ul style="margin: 25px 0; padding-left: 20px;">
+    //                     <li style="margin-bottom: 8px;"><strong>Effective Date:</strong> April 1, 2025</li>
+    //                     <li style="margin-bottom: 8px;"><strong>Increment Amount:</strong> ${percentage} of current CTC</li>
+    //                     <li style="margin-bottom: 8px;"><strong>Increased Annual CTC:</strong> Rs. ${yearlyCTC}</li>
+    //                 </ul>
+                    
+    //                 <p style="margin-bottom: 10px; text-align: justify;">
+    //                     We congratulate you on this well-deserved recognition and look forward
+    //                     to your continued contributions to the company.
+    //                 </p>
+                    
+    //                 <div style="margin-top: 40px;">
+    //                     <p style="margin: 5px 0;"><strong>Warm regards,</strong></p>
+    //                     <p style="margin: 5px 0;"><strong>Authorized Signatory</strong></p>
+    //                     <p style="margin: 5px 0;"><strong>Burger Farm India Pvt. Ltd.</strong></p>
+    //                 </div>
+    //             </div>
+    //         </div>
+            
+    //         ${
+    //           footerImageSrc
+    //             ? `
+    //         <div class="letter-footer" style="position: relative; z-index: 2;">
+    //             <img src="${footerImageSrc}" alt="Company Footer" class="footer-image">
+    //         </div>
+    //         `
+    //             : ""
+    //         }
+    //     </div>
+    // `;
+    //   }
 
       // Download a single PDF
       function downloadPDF(employee, content) {
@@ -668,14 +743,7 @@
 
             pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
 
-            const empId =
-              employee["Employee Id"] ||
-              employee["Employee ID"] ||
-              employee["EmpId"] ||
-              "Unknown";
-
-            const firstName = employee["First Name"];
-            pdf.save(`${firstName}_${empId}.pdf`);
+            pdf.save(`${employee["Employee Name"]}_${employee["Employee Id"]}_Increment_Letter.pdf`);
 
             document.body.removeChild(tempDiv);
             statusDiv.innerHTML =
