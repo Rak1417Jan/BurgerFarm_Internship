@@ -116,7 +116,72 @@ document
     reader.readAsArrayBuffer(file);
   });
 
-// Process branch details data and build the mapping
+function calculateAge(dobValue) {
+  if (!dobValue && dobValue !== 0) {
+    console.log("DOB is empty or null");
+    return 0; // Skip if empty (but allow 0 for Excel serial dates)
+  }
+
+  let dobDate;
+
+  // Case 1: Excel serial number (e.g., 44923)
+  if (typeof dobValue === 'number') {
+    console.log("DOB is a number (Excel serial):", dobValue);
+    dobDate = new Date(Math.round((dobValue - 25569) * 86400 * 1000)); // Correct Excel-to-JS date conversion
+  }
+  // Case 2: Date string (e.g., "15/05/2010" or "5/15/2020")
+  else if (typeof dobValue === 'string') {
+    console.log("DOB is a string:", dobValue);
+    // Try DD/MM/YYYY first
+    let parts = dobValue.split('/');
+    if (parts.length === 3) {
+      const day = parseInt(parts[0]);
+      const month = parseInt(parts[1]);
+      const year = parseInt(parts[2]);
+      
+      // If first part > 12, it must be DD/MM/YYYY format
+      if (day > 12) {
+        dobDate = new Date(year, month - 1, day); // YYYY, MM-1, DD
+      } 
+      // If second part > 12, it must be MM/DD/YYYY format  
+      else if (month > 12) {
+        dobDate = new Date(year, day - 1, month); // YYYY, MM-1, DD (swapped day/month)
+      }
+      // Both are <= 12, assume DD/MM/YYYY (European format)
+      else {
+        dobDate = new Date(year, month - 1, day); // YYYY, MM-1, DD
+      }
+      
+      console.log(`Parsed parts: day=${day}, month=${month}, year=${year}`);
+    }
+  }
+
+  // Fallback: Let JavaScript try to parse the date (works for ISO strings)
+  if (!dobDate || isNaN(dobDate.getTime())) {
+    console.log("Trying fallback date parsing");
+    dobDate = new Date(dobValue);
+  }
+
+  // Return 0 if invalid
+  if (!dobDate || isNaN(dobDate.getTime())) {
+    console.log("Invalid date, returning 0");
+    return 0;
+  }
+
+  console.log("Parsed DOB date:", dobDate);
+
+  // Calculate age
+  const today = new Date();
+  let age = today.getFullYear() - dobDate.getFullYear();
+  const monthDiff = today.getMonth() - dobDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+    age--;
+  }
+
+  console.log("Calculated age:", age);
+  return age >= 0 ? age : 0; // Ensure age isn't negative
+}
 function processBranchDetailsData(data) {
   branchDetailsMap = {};
 
@@ -613,6 +678,53 @@ function calculateDOC(joiningDateStr) {
 }
 
 // Display preview of converted data
+// function displayPreview(data) {
+//   const container = document.getElementById("tableContainer");
+//   container.innerHTML = "";
+
+//   if (data.length === 0) {
+//     container.innerHTML = "<p>No data to display</p>";
+//     return;
+//   }
+
+//   const table = document.createElement("table");
+
+//   // Create header
+//   const thead = document.createElement("thead");
+//   const headerRow = document.createElement("tr");
+//   data[0].forEach((header) => {
+//     const th = document.createElement("th");
+//     th.textContent = header;
+//     headerRow.appendChild(th);
+//   });
+//   thead.appendChild(headerRow);
+//   table.appendChild(thead);
+
+//   // Create body (limit to 5 rows for preview)
+//   const tbody = document.createElement("tbody");
+//   const rowCount = Math.min(data.length, 6); // Show up to 5 data rows + header
+//   for (let i = 1; i < rowCount; i++) {
+//     const row = document.createElement("tr");
+//     data[i].forEach((cell) => {
+//       const td = document.createElement("td");
+//       td.textContent = cell;
+//       row.appendChild(td);
+//     });
+//     tbody.appendChild(row);
+//   }
+//   table.appendChild(tbody);
+
+//   container.appendChild(table);
+
+//   if (data.length > 6) {
+//     const moreText = document.createElement("p");
+//     moreText.textContent = `...and ${
+//       data.length - 6
+//     } more rows (not shown in preview)`;
+//     container.appendChild(moreText);
+//   }
+// }
+
 function displayPreview(data) {
   const container = document.getElementById("tableContainer");
   container.innerHTML = "";
@@ -638,9 +750,26 @@ function displayPreview(data) {
   // Create body (limit to 5 rows for preview)
   const tbody = document.createElement("tbody");
   const rowCount = Math.min(data.length, 6); // Show up to 5 data rows + header
+  
+  // Find DOB column index
+  const dobHeaderIndex = data[0].findIndex(header => 
+    header.toString().toUpperCase() === "DOB"
+  );
+  
   for (let i = 1; i < rowCount; i++) {
     const row = document.createElement("tr");
-    data[i].forEach((cell) => {
+    const rowData = data[i];
+    
+    // Check if employee is under 18
+    if (dobHeaderIndex !== -1 && rowData[dobHeaderIndex]) {
+      const age = calculateAge(rowData[dobHeaderIndex]);
+      if (age < 18) {
+        row.style.backgroundColor = "#ffcccc"; // Light red background
+        row.style.color = "#cc0000"; // Darker red text for better contrast
+      }
+    }
+    
+    rowData.forEach((cell) => {
       const td = document.createElement("td");
       td.textContent = cell;
       row.appendChild(td);
@@ -660,22 +789,42 @@ function displayPreview(data) {
   }
 }
 
-// Update download button handler to include both sheets
 document.getElementById("downloadBtn").addEventListener("click", function () {
   if (!window.convertedDataForDownload) return;
 
-  // Create a new workbook
-  const wb = XLSX.utils.book_new();
-  
-  // Add Employee Data sheet
-  const employeeWs = XLSX.utils.aoa_to_sheet(window.convertedDataForDownload.employeeData);
-  XLSX.utils.book_append_sheet(wb, employeeWs, "Employee");
-  
-  // Add Personal Data sheet
-  const personalWs = XLSX.utils.aoa_to_sheet(window.convertedDataForDownload.personalData);
-  XLSX.utils.book_append_sheet(wb, personalWs, "Personal");
+  // Create a copy of the data to avoid modifying the original
+  const employeeData = JSON.parse(JSON.stringify(window.convertedDataForDownload.employeeData));
+  const personalData = window.convertedDataForDownload.personalData;
 
-  // Generate the file and trigger download as .xlsx
+  // Find DOB column index in the ORIGINAL data (before adding NOTE column)
+  const dobHeaderIndex = employeeData[0].findIndex(header => 
+    header.toString().toUpperCase() === "DOB"
+  );
+
+  // Add "NOTE" column as the FIRST column (only if DOB exists)
+  if (dobHeaderIndex !== -1) {
+    // Add "NOTE" header at the beginning
+    employeeData[0].unshift("NOTE");
+
+    // Process each row (skip header row at index 0)
+    for (let i = 1; i < employeeData.length; i++) {
+      // Get DOB from ORIGINAL position (before adding NOTE column)
+      const dob = employeeData[i][dobHeaderIndex];
+      const age = calculateAge(dob);
+      console.log(`Row ${i}: DOB = ${dob}, Age = ${age}`);
+      
+      // Insert "UNDER 18" note ONLY if age < 18, otherwise leave blank
+      employeeData[i].unshift(age < 18 ? "UNDER 18" : "");
+    }
+  }
+
+  // Generate Excel
+  const wb = XLSX.utils.book_new();
+  const employeeWs = XLSX.utils.aoa_to_sheet(employeeData);
+  const personalWs = XLSX.utils.aoa_to_sheet(personalData);
+  
+  XLSX.utils.book_append_sheet(wb, employeeWs, "Employee");
+  XLSX.utils.book_append_sheet(wb, personalWs, "Personal");
   XLSX.writeFile(wb, fileName, { bookType: "xlsx" });
 });
 
